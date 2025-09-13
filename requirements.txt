@@ -1,1 +1,1 @@
-libvert-python
+libvirt-python
