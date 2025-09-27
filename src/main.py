@@ -24,12 +24,43 @@ If you are new, type [green]help[/green] (or) [green]--help[/green] to learn mor
 """)
 
 @app.command()
+def hostinfo():
+    libvirt.host_api.get_info()
+
+# these are the commands to manage
+# the lifecycle of virtual machines
+@app.command()
 def list():
     libvirt.vm_api.list_vms()
 
 @app.command()
-def hostinfo():
-    libvirt.host_api.get_info()
+def info(vm_name: str):
+    libvirt.vm_api.vm_info(vm_name)
+    
+@app.command()
+def start(vm_name: str):
+    libvirt.vm_api.start_vm(vm_name)
 
+@app.command()
+def shutdown(vm_name: str):
+    libvirt.vm_api.shutdown_vm(vm_name)
+
+@app.command()
+def destroy(vm_name: str):
+    libvirt.vm_api.destroy_vm(vm_name)
+
+
+@app.command()
+def suspend(vm_name: str):
+    libvirt.vm_api.suspend_vm(vm_name)
+
+@app.command()
+def resume(vm_name: str):
+    libvirt.vm_api.resume_vm(vm_name)
+
+@app.command()
+def reboot(vm_name: str):
+    libvirt.vm_api.reboot_vm(vm_name)
+    
 if __name__ == "__main__":
     app()
