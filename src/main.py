@@ -13,30 +13,23 @@ __   ___ __ ___   ___| |_| |
 
 """
 app = typer.Typer(no_args_is_help=True)
-
-
-@app.command()
-def idk():
-    print("hi")
-
-# the body definition is temporary, will need to change it
-# i was just playing around with typer and rich
-@app.command()
-def hostname():
-    libvirt = libvirt_api.LibVirtApi()
-    
-    print("Hostname: ", libvirt.host_api.get_hostname())
-    print("Max vCPU's: ", libvirt.host_api.get_max_vCpus())
+libvirt = libvirt_api.LibVirtApi()
 
 @app.command()
-def hostinfo():
-    libvirt = libvirt_api.LibVirtApi()
-    libvirt.host_api.get_info()
-    
-if __name__ == "__main__":
+def about():
     print(VMCTL_BANNER)
     print("""[bold blue]A simple CLI tool to manage VM's using the LibVirt API.[/bold blue]
 To get started, type any of the commands vmctl supports.
 If you are new, type [green]help[/green] (or) [green]--help[/green] to learn more about [bold blue]vmctl[/bold blue] and what it offers.
 """)
+
+@app.command()
+def list():
+    libvirt.vm_api.list_vms()
+
+@app.command()
+def hostinfo():
+    libvirt.host_api.get_info()
+
+if __name__ == "__main__":
     app()

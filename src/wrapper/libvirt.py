@@ -1,10 +1,14 @@
 import libvirt
 from wrapper.host import HostApi
+from wrapper.vm import VMApi
+
 
 class LibVirtApi:
     def __init__(self):
         self.connection = self._connect()
         self.host_api = HostApi(self.connection)
+        self.vm_api = VMApi(self.connection)
+
 
     def _connect(self, uri: str = 'qemu:///system'):
         conn = libvirt.open(uri)
