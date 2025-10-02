@@ -1,6 +1,5 @@
 from rich import print
-from rich.table import Table
-from rich.console import Console
+from utils.table import create_table
 
 # lifecycle management of guest domains
 # reference: https://libvirt-python.readthedocs.io/lifecycle-control/
@@ -10,13 +9,25 @@ from rich.console import Console
 class VMApi:
     def __init__(self, connection):
         self.connection = connection
-        self.console = Console()
+
+
+    def provision_vm(self, xml):
+        # to provision a vm in libvirt, we need to provide a xml file that defines the vm (size, os, disk path)
+        # reference: https://libvirt-python.readthedocs.io/domain-config/
+        pass
 
     def list_vms(self):
         domains = self.connection.listAllDomains()
         if not domains:
             print("[bold bright_yellow]No VMs found[/bold bright_yellow]")
-        
+            return
+
+        columns = [
+            {"header": "VM ID", "style": "bold bright_yellow"},
+            {"header": "VM name", "style": "bold bright_cyan"},
+            {"header": "VM state"},
+        ]
+        rows = []
         for domain in domains:
             state, _ = domain.state()
             vm_name = domain.name()
@@ -24,14 +35,9 @@ class VMApi:
 
             mappedVmState = self._mapVmStateToString(state)
             mappedVmColor = self._mapStateToColor(mappedVmState)
+            rows.append([vm_id, vm_name, f"[{mappedVmColor}]{mappedVmState}[/{mappedVmColor}]"])
 
-            rich_table = Table(title="List of VMs")
-            rich_table.add_column("VM ID", style="bold bright_yellow")
-            rich_table.add_column("VM name", style="bold bright_cyan")
-            rich_table.add_column("VM state")
-
-            rich_table.add_row(vm_id, vm_name, f"[{mappedVmColor}]{mappedVmState}[/{mappedVmColor}]")
-            self.console.print(rich_table)  
+        create_table("List of VMs", columns, rows)
 
     def vm_info(self, vm_name):
         domain = self.connection.lookupByName(vm_name)
@@ -40,18 +46,18 @@ class VMApi:
         vm_id = "--" if domain.ID() == -1 else str(domain.ID())
         mappedVmState = self._mapVmStateToString(state)
 
-        
-        rich_table = Table(title=f"Vritual Machine [bold bright_cyan]{vm_name}[/bold bright_cyan] Info")
-        rich_table.add_column("VM ID")
-        rich_table.add_column("VM name")
-        rich_table.add_column("VM state")
-        rich_table.add_column("VM current memory")
-        rich_table.add_column("VM max memory")
-        rich_table.add_column("VM number of vCPU's")
-        rich_table.add_column("VM CPU time used")
-
-        rich_table.add_row(vm_id, vm_name, mappedVmState, str(max_mem), str(curr_mem), str(no_vcpu), str(cpu_time))
-        self.console.print(rich_table)
+        title = f"Virtual Machine [bold bright_cyan]{vm_name}[/bold bright_cyan] Info"
+        columns = [
+            {"header": "VM ID"},
+            {"header": "VM name"},
+            {"header": "VM state"},
+            {"header": "VM current memory"},
+            {"header": "VM max memory"},
+            {"header": "VM number of vCPU's"},
+            {"header": "VM CPU time used"},
+        ]
+        rows = [[vm_id, vm_name, mappedVmState, str(max_mem), str(curr_mem), str(no_vcpu), str(cpu_time)]]
+        create_table(title, columns, rows)
 
 
     def start_vm(self, vm_name):
