@@ -34,6 +34,10 @@ def list():
     libvirt.vm_api.list_vms()
 
 @app.command()
+def provision(vm_name: str, vm_memory: int, vm_vcpus: int, iso_path: str = None, disk_path: str = None):
+    libvirt.vm_api.provision_vm(vm_name, vm_memory, vm_vcpus, iso_path, disk_path)
+
+@app.command()
 def info(vm_name: str):
     libvirt.vm_api.vm_info(vm_name)
     

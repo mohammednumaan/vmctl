@@ -1,6 +1,6 @@
 from rich import print
 from utils.table import create_table
-
+from utils.xml import create_xml_config
 # lifecycle management of guest domains
 # reference: https://libvirt-python.readthedocs.io/lifecycle-control/
 
@@ -11,10 +11,24 @@ class VMApi:
         self.connection = connection
 
 
-    def provision_vm(self, xml):
+    def provision_vm(self, vm_name: str, vm_memory: int, vm_vcpus: int, iso_path: str = None, disk_path: str = None):
         # to provision a vm in libvirt, we need to provide a xml file that defines the vm (size, os, disk path)
         # reference: https://libvirt-python.readthedocs.io/domain-config/
-        pass
+
+        # this is a small design decision i had to make, i.e flexibility vs usability
+        # this version of vmctl is going to provide usability over flexibility
+        # hence, the user will not be able to provide a custom xml file
+        xml_config = create_xml_config(vm_name, vm_memory, vm_vcpus, iso_path, disk_path)
+        try:
+            domain = self.connection.defineXML(xml_config)
+            if domain is None:
+                print("[bold red]Failed to define a domain from the XML configuration.[/bold red]")
+                return
+            print(f"Domain [bold bright_cyan]{domain.name()}[/bold bright_cyan] has been defined successfully.")
+            print("You can start the VM using the command: [green]vmctl start <vm_name>[/green]")
+        except Exception as e:
+            print(f"[bold red]Failed to define a domain from the XML configuration: {e}[/bold red]")
+
 
     def list_vms(self):
         domains = self.connection.listAllDomains()
