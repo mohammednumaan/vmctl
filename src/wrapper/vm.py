@@ -1,3 +1,6 @@
+"""
+This module provides a class for interacting with virtual machines using the libvirt API.
+"""
 from rich import print
 from utils.table import create_table
 from utils.xml import create_xml_config
@@ -10,11 +13,30 @@ from utils.errors import VmctlError, LibvirtError
 # maybe there is a better way to manage different states of a VM instead 
 # the ugly if-else statements
 class VMApi:
+    """
+    A class for interacting with virtual machines using the libvirt API.
+    """
     def __init__(self, connection):
+        """
+        Initializes the VMApi class.
+
+        Args:
+            connection (libvirt.virConnect): The connection object.
+        """
         self.connection = connection
 
 
     def provision_vm(self, vm_name: str, vm_memory: int, vm_vcpus: int, iso_path: str = None, disk_path: str = None):
+        """
+        Provisions a new virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+            vm_memory (int): The amount of memory for the virtual machine in MiB.
+            vm_vcpus (int): The number of virtual CPUs for the virtual machine.
+            iso_path (str, optional): The path to the ISO file for the virtual machine. Defaults to None.
+            disk_path (str, optional): The path to the disk file for the virtual machine. Defaults to None.
+        """
         # to provision a vm in libvirt, we need to provide a xml file that defines the vm (size, os, disk path)
         # reference: https://libvirt-python.readthedocs.io/domain-config/
 
@@ -36,6 +58,9 @@ class VMApi:
 
 
     def list_vms(self):
+        """
+        Lists all virtual machines.
+        """
         try:
             domains = self.connection.listAllDomains()
             if not domains:
@@ -62,6 +87,12 @@ class VMApi:
             raise LibvirtError(f"Error listing VMs: {e}")
 
     def vm_info(self, vm_name):
+        """
+        Gets information about a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
             domain = self.connection.lookupByName(vm_name)
             state, max_mem, curr_mem, no_vcpu, cpu_time = domain.info()
@@ -86,8 +117,14 @@ class VMApi:
 
 
     def start_vm(self, vm_name):
+        """
+        Starts a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
-            domain = self.connection.lookupByName(vm_name)
+            domain = self.conection.lookupByName(vm_name)
             state, _ = domain.state()
             mapped_vm_state = self._mapVmStateToString(state)
 
@@ -105,6 +142,12 @@ class VMApi:
 
 
     def shutdown_vm(self, vm_name):
+        """
+        Shuts down a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
             domain = self.connection.lookupByName(vm_name)
             state, _ = domain.state()
@@ -126,6 +169,12 @@ class VMApi:
 
 
     def destroy_vm(self, vm_name):
+        """
+        Destroys a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
             domain = self.connection.lookupByName(vm_name)
             state, _ = domain.state()
@@ -143,6 +192,12 @@ class VMApi:
 
 
     def suspend_vm(self, vm_name):
+        """
+        Suspends a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
             domain = self.connection.lookupByName(vm_name)
             state, _ = domain.state()
@@ -164,6 +219,12 @@ class VMApi:
 
 
     def resume_vm(self, vm_name):
+        """
+        Resumes a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
             domain = self.connection.lookupByName(vm_name)
             state, _ = domain.state()
@@ -183,6 +244,12 @@ class VMApi:
 
 
     def reboot_vm(self, vm_name):
+        """
+        Reboots a virtual machine.
+
+        Args:
+            vm_name (str): The name of the virtual machine.
+        """
         try:
             domain = self.connection.lookupByName(vm_name)
             state, _ = domain.state()
@@ -203,6 +270,15 @@ class VMApi:
             raise LibvirtError(f"Error rebooting VM '{vm_name}': {e}")
 
     def _mapVmStateToString(self, vm_state):
+        """
+        Maps a VM state to a string.
+
+        Args:
+            vm_state (int): The state of the VM.
+
+        Returns:
+            str: The string representation of the VM state.
+        """
         string_mapping = {
             0: "no_state",    
             1: "running",     
@@ -217,6 +293,15 @@ class VMApi:
 
 
     def _mapStateToColor(self, vm_state_string):
+        """
+        Maps a VM state string to a color.
+
+        Args:
+            vm_state_string (str): The string representation of the VM state.
+
+        Returns:
+            str: The color for the VM state.
+        """
         color_mapping = {
             "no_state": "grey50",
             "running": "green",
