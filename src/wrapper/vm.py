@@ -10,8 +10,6 @@ from utils.errors import VmctlError, LibvirtError
 # lifecycle management of guest domains
 # reference: https://libvirt-python.readthedocs.io/lifecycle-control/
 
-# maybe there is a better way to manage different states of a VM instead 
-# the ugly if-else statements
 class VMApi:
     """
     A class for interacting with virtual machines using the libvirt API.
